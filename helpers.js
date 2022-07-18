@@ -105,7 +105,7 @@ export const downloadVideo = (url) => {
       video.on("progress", (chunkLength, downloaded, total) => {
         const percent = ((downloaded / total) * 100).toFixed(2);
         const downloadMinutes = (Date.now() - startTime) / 1000 / 60;
-        const estimateDownlaodTime =
+        const estimateDownloadTime =
           downloadMinutes / percent - downloadMinutes;
         readline.cursorTo(process.stdout, 0);
 
@@ -119,11 +119,11 @@ export const downloadVideo = (url) => {
         );
 
         process.stdout.write(
-          `running for: ${downloadedMinutes.toFixed(2)}minutes`
+          `running for: ${downloadMinutes.toFixed(2)}minutes`
         );
 
         process.stdout.write(
-          `, estimated time left: ${estimatedDownloadTime.toFixed(2)}minutes `
+          `, estimated time left: ${estimateDownloadTime.toFixed(2)}minutes `
         );
 
         readline.moveCursor(process.stdout, 0, -1);
@@ -277,9 +277,9 @@ export const sendFileToTelegram = async (client, videoInfo, videoPath) => {
         file: "video.mp4",
         thumb: "./tmp/thumbnail.jpg",
         supportStreaming: true,
-        progressCallback: (progress) => {
-          console.log(progress);
-        },
+        // progressCallback: (progress) => {
+        //   console.log(progress);
+        // },
         attributes: [
           new Api.DocumentAttributeVideo({
             supportStreaming: true,
@@ -303,7 +303,7 @@ export const main = async () => {
   for (let [index, link] of videoLink.entries()) {
     const videoInfo = await getVideoInfo(link);
     const downloadVideoResult = await downloadVideo(link);
-    const caption = `#${index}`;
+    const caption = `#${index}\n**Title**: \n${videoInfo.videoTitle}\n**Likes**: \n${videoInfo.likes}\n**Duration**: \n${videoInfo.lengthSeconds}s\n**Uploaded At**: \n${videoInfo.uploadDate}\n**Video URL**: \n${videoInfo.videoUrl}\n**Thumbnail URL**: \n${videoInfo.thumbnail}\n**Description**: \n${videoInfo.description}`;
 
     await client.sendMessage(process.env.CHANNEL_ID, {
       message: caption,
@@ -333,7 +333,7 @@ export const main = async () => {
 
       await sendFileToTelegram(client, videoInfo, "video.mp4");
       console.log(`video ${index} sent`);
-      await wrietToFile(`${index} ${index}`)
+      await wrietToFile(`${index} ${index}`);
     }
   }
 };
