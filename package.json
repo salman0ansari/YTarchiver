@@ -17,7 +17,9 @@
     "ffprobe-static": "^3.1.0",
     "get-video-duration": "^4.1.0",
     "node-fetch": "^3.2.8",
-    "telegram": "^2.9.10",
     "ytdl-core": "^4.11.0"
+  },
+  "devDependencies": {
+    "telegram": "^2.9.10"
   }
 }
