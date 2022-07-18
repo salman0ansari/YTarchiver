@@ -1,7 +1,7 @@
 import "dotenv/config";
 import {
   createWriteStream,
-  readFileSync,
+  readFile,
   writeFile,
   statSync,
   existsSync,
@@ -21,10 +21,10 @@ import { pipeline } from "stream";
 import fetch from "node-fetch";
 import { getVideoDurationInSeconds } from "get-video-duration";
 import { TelegramClient, Api } from "telegram";
-import { StringSession } from "telegram/session/index.js";
-import { sendFile } from "telegram/client/upload.js";
+import { StringSession } from "telegram/sessions/index.js";
+import { sendFile } from "telegram/client/uploads.js";
 import ffprobe from "ffprobe";
-import ffprobeStatic from "ffprobeStatic";
+import ffprobeStatic from "ffprobe-static";
 
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const ffmpeg = promisify(exec);
@@ -37,16 +37,16 @@ const API_HASH = process.env.API_HASH;
 const SESSION_STRING = process.env.SESSION_STRING;
 
 // reverse order file content
-export const reverseOrder = (inputFile, outputFile) => {
-  const lines = readFileSync(inputFile, "utf8").split("\n");
+export const reverseOrder = async (inputFile, outputFile) => {
+  const lines = await readFile(inputFile, "utf8").split("\n");
   let result = "";
 
-  for (let i = lines.length - 1; i >= 0; i--) {
-    result += lines[i] + "\n" + result;
+  for (let i = 0; i < lines.length; i++) {
+    result = lines[i] + "\n" + result;
   }
 
   writeFile(outputFile, result, (err) => {
-    if (err) return console.log(err);
+    if (err) console.log(err);
   });
 };
 
@@ -298,6 +298,7 @@ export const sendFileToTelegram = async (client, videoInfo, videoPath) => {
 
 export const main = async () => {
   const client = await connectToTelegram();
+  await reverseOrder("links.txt", "links.txt");
   const videoLink = await asyncReadFile("links.txt");
 
   for (let [index, link] of videoLink.entries()) {
